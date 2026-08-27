@@ -129,7 +129,7 @@ console.log(oraFormattata);
         return;
       }
 
-      const { data, error } = await clientSupabase.from('residenze').select('id, struttura, telefono, indirizzo, cap, localita').eq('id_citta', idCitta);
+      const { data, error } = await clientSupabase.from('residenze').select('id, struttura, telefono, indirizzo, cap, localita').eq('id_citta', idCitta).order('struttura');
       if (error) return mostraMessaggio("Errore caricamento residenze", true);
 
       tutteLeResidenze = data;
