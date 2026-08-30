@@ -266,6 +266,7 @@ function assemblaAlberoResidenze(residenzeGrezze, stanzeGrezze, spaziGrezzi) {
           montapersone: riga.montapersone,
           mensa: riga.mensa,
           piani: riga.piani,
+		  num_ospiti: riga.num_ospiti,
           num_stanze: riga.num_stanze,
           num_stanze_disabili: riga.num_stanze_disabili,
           spazi_comuni_struttura: riga.spazi_comuni_struttura
@@ -670,8 +671,18 @@ function renderResidenze(residenze) {
         <div><strong>CAP / Località:</strong> ${residenza.cap || ''} ${nomeCitta}</div>
         <div><strong>Telefono:</strong> <a href="tel:${residenza.telefono || ''}">${residenza.telefono || 'N/D'} 📞</a></div>
         ${scheda ? `
-          <div><strong>Ascensore:</strong> ${formattaBooleano(scheda.ascensore)}</div>
-          <div><strong>Rampa Struttura:</strong> ${formattaBooleano(scheda.rampa)}</div>
+		<div><strong>Portineria:</strong> ${scheda.portineria}</div>
+		<div><strong>Mensa:</strong> ${formattaBooleano(scheda.mensa)}</div>
+		<div><strong>Ascensore:</strong> ${formattaBooleano(scheda.ascensore)}</div>
+		<div><strong>Montascale:</strong> ${formattaBooleano(scheda.montascale)}</div>
+		<div><strong>Montapersone:</strong> ${formattaBooleano(scheda.montapersone)}</div>
+        <div><strong>Rampa Struttura:</strong> ${formattaBooleano(scheda.rampa)}</div>
+		
+		<div><strong>Ospiti totali:</strong> ${scheda.num_ospiti}</div>
+		<div><strong>Piani totali:</strong> ${scheda.piani}</div>
+		<div><strong>Stanze totali:</strong> ${scheda.num_stanze}</div>
+		<div><strong>Stanze Disabili:</strong> ${scheda.num_stanze_disabili}</div>
+		<div><strong>Spazi Comuni totali:</strong> ${scheda.spazi_comuni_struttura}</div>
         ` : ''}
       </div>
 

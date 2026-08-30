@@ -286,9 +286,13 @@ console.log(oraFormattata);
         pianosCaricatiInMemoria = pianiData || [];
 		  
         generaRighePiani(pianosCaricatiInMemoria);
+		calcolaTotaliPiani(); 
       } else {
         generaRighePiani([]);
+		calcolaTotaliPiani(); 
       }
+	  
+	  
 	  
 	  
 	  
@@ -335,7 +339,35 @@ console.log(oraFormattata);
 
 
 
+function calcolaTotaliPiani() {
+  let sommaStanzeTotali = 0;
+  let sommaStanzeAccessibili = 0;
+  let sommaSpaziComuni = 0;
 
+  // Seleziona tutte le righe generatrici dei piani dentro il corpo tabella
+  const righePiani = document.querySelectorAll("#corpo-tabella-piani tr");
+
+  righePiani.forEach((riga) => {
+    // Presumendo che nella riga ci siano gli input per i valori numerici:
+    // Modifica le classi/selettori se nel tuo codice usi ID o classi specifiche
+    const inputStanzeTot = riga.querySelector(".input-piano-stanze-tot") || riga.cells[3]?.querySelector("input");
+    const inputStanzeAcc = riga.querySelector(".input-piano-stanze-acc") || riga.cells[4]?.querySelector("input");
+    const inputSpaziComuni = riga.querySelector(".input-piano-spazi-comuni") || riga.cells[5]?.querySelector("input");
+
+    if (inputStanzeTot) sommaStanzeTotali += parseInt(inputStanzeTot.value) || 0;
+    if (inputStanzeAcc) sommaStanzeAccessibili += parseInt(inputStanzeAcc.value) || 0;
+    if (inputSpaziComuni) sommaSpaziComuni += parseInt(inputSpaziComuni.value) || 0;
+  });
+
+  // Aggiorna i tre campi generali in sola lettura
+  document.getElementById("input-num-stanze").value = sommaStanzeTotali;
+  document.getElementById("input-num-stanze-disabili").value = sommaStanzeAccessibili;
+  document.getElementById("input-num-spazi-comuni").value = sommaSpaziComuni;
+
+  // (Opzionale) Se hai funzioni che rigenerano le schede Stanza o Spazi Comuni
+  // in base ai nuovi totali, puoi richiamarle da qui se necessario:
+  // if (typeof rigeneraSchedeStanze === "function") rigeneraSchedeStanze();
+}
 
 
 
@@ -1504,20 +1536,19 @@ function generaRighePiani(pianiSalvati = []) {
           <option value="Parzialmente" ${datiPiano.accessibile === 'Parzialmente' ? 'selected' : ''}>Parzialmente</option>
         </select>
       </td>
-      <td><input type="number" class="piano-stanze" min="0" value="${datiPiano.num_camere ?? 0}"></td>
-      <td><input type="number" class="piano-stanze-acc" min="0" value="${datiPiano.num_camere_accessibili ?? 0}" onchange="rigeneraDettagliStanze()"></td>
-	  <td><input type="number" class="piano-spazi-comuni" min="0" value="${datiPiano.num_spazi_comuni ?? 0}" onchange="rigeneraDettagliSpaziComuni()"></td>
+      <td><input type="number" class="piano-stanze" min="0" value="${datiPiano.num_camere ?? 0}" oninput="calcolaTotaliPiani()"></td>
+      <td><input type="number" class="piano-stanze-acc" min="0" value="${datiPiano.num_camere_accessibili ?? 0}" oninput="calcolaTotaliPiani()" onchange="rigeneraDettagliStanze()"></td>
+      <td><input type="number" class="piano-spazi-comuni" min="0" value="${datiPiano.num_spazi_comuni ?? 0}" oninput="calcolaTotaliPiani()" onchange="rigeneraDettagliSpaziComuni()"></td>
       <td><input type="text" class="piano-nota" value="${datiPiano.nota || ''}" placeholder="Eventuali note..."></td>
     `;
     tbody.appendChild(tr);
   }
 
+  // Rigenera schede e aggiorna i 3 totali in alto
   rigeneraDettagliStanze();
   rigeneraDettagliSpaziComuni();
+  calcolaTotaliPiani();
 }
-
-
-
 
 
 
@@ -1897,23 +1928,34 @@ function generaContenutoStanza(pianoNum, stanzaNum) {
         reqBox.className = 'nodo-requisito';
         
         reqBox.innerHTML = `
-          <div class="requisito-titolo">📄 <strong>${req.requisito}</strong></div>
-          <div class="requisito-dettagli">
-            ${req.caratteristiche ? `<p><strong>Caratteristiche:</strong> ${req.caratteristiche}</p>` : ''}
-            ${req.disabilita ? `<p><strong>Disabilità target:</strong> ${req.disabilita}</p>` : ''}
-            ${req.note ? `<p class="testo-mute"><em>Note guida: ${req.note}</em></p>` : ''}
-          </div>
-          <div class="requisito-input">
-            <label>Stato:</label>
-            <select class="input-valore-stanza" data-id-indicatore="${req.id}">
-              <option value="">-- Seleziona Stato --</option>
-              <option value="Conforme">Conforme</option>
-              <option value="Non Conforme">Non Conforme</option>
-              <option value="Parzialmente Conforme">Parzialmente Conforme</option>
-              <option value="Non Applicabile">Non Applicabile</option>
-            </select>
-            <textarea class="input-nota-valore-stanza" placeholder="Note o osservazioni specifiche per questo requisito..." rows="2"></textarea>
-          </div>
+			<div class="requisito-titolo">📄 <strong>${req.requisito}</strong></div>   
+
+			<div class="requisito-dettagli">
+			  ${req.caratteristiche ? `<p><strong>Caratteristiche:</strong> ${req.caratteristiche}</p>` : ''}
+			  ${req.disabilita ? `<p><strong>Disabilità target:</strong> ${req.disabilita}</p>` : ''}
+			  ${req.note ? `<p class="testo-mute"><em>Note guida: ${req.note}</em></p>` : ''}
+			</div>
+
+			<!-- Layout a colonna per occupare l'intera larghezza disponibile -->
+			<div class="requisito-input" style="display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 8px;">
+			  
+			  <div style="display: flex; align-items: center; gap: 8px;">
+				<label style="font-weight: 600;">Stato:</label>
+				<select class="input-valore-stanza" data-id-indicatore="${req.id}" style="max-width: 250px; padding: 4px 8px;">
+				  <option value="">-- Seleziona Stato --</option>
+				  <option value="Conforme">Conforme</option>
+				  <option value="Non Conforme">Non Conforme</option>
+				  <option value="Parzialmente Conforme">Parzialmente Conforme</option>
+				  <option value="Non Applicabile">Non Applicabile</option>
+				</select>
+			  </div>
+
+			  <!-- Textarea a tutto campo -->
+			  <textarea class="input-nota-valore-stanza" 
+						placeholder="Note o osservazioni specifiche per questo requisito..." 
+						rows="2" 
+						style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
+			</div>
         `;
 	
         ambitoBody.appendChild(reqBox);
@@ -1982,23 +2024,34 @@ function generaContenutospaziocomune(pianoNum, spaziocomuneNum) {
         reqBox.className = 'nodo-requisito';
         
         reqBox.innerHTML = `
-          <div class="requisito-titolo">📄 <strong>${req.requisito}</strong></div>
-          <div class="requisito-dettagli">
-            ${req.caratteristiche ? `<p><strong>Caratteristiche:</strong> ${req.caratteristiche}</p>` : ''}
-            ${req.disabilita ? `<p><strong>Disabilità target:</strong> ${req.disabilita}</p>` : ''}
-            ${req.note ? `<p class="testo-mute"><em>Note guida: ${req.note}</em></p>` : ''}
-          </div>
-          <div class="requisito-input">
-            <label>Stato:</label>
-            <select class="input-valore-spaziocomune" data-id-indicatore="${req.id}">
-              <option value="">-- Seleziona Stato --</option>
-              <option value="Conforme">Conforme</option>
-              <option value="Non Conforme">Non Conforme</option>
-              <option value="Parzialmente Conforme">Parzialmente Conforme</option>
-              <option value="Non Applicabile">Non Applicabile</option>
-            </select>
-            <textarea class="input-nota-valore-spaziocomune" placeholder="Note o osservazioni specifiche per questo requisito..." rows="2"></textarea>
-          </div>
+			<div class="requisito-titolo">📄 <strong>${req.requisito}</strong></div>           
+
+			<div class="requisito-dettagli">
+			  ${req.caratteristiche ? `<p><strong>Caratteristiche:</strong> ${req.caratteristiche}</p>` : ''}
+			  ${req.disabilita ? `<p><strong>Disabilità target:</strong> ${req.disabilita}</p>` : ''}
+			  ${req.note ? `<p class="testo-mute"><em>Note guida: ${req.note}</em></p>` : ''}
+			</div>
+
+			<!-- Layout a colonna per occupare l'intera larghezza disponibile -->
+			<div class="requisito-input" style="display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 8px;">
+			  
+			  <div style="display: flex; align-items: center; gap: 8px;">
+				<label style="font-weight: 600;">Stato:</label>
+				<select class="input-valore-stanza" data-id-indicatore="${req.id}" style="max-width: 250px; padding: 4px 8px;">
+				  <option value="">-- Seleziona Stato --</option>
+				  <option value="Conforme">Conforme</option>
+				  <option value="Non Conforme">Non Conforme</option>
+				  <option value="Parzialmente Conforme">Parzialmente Conforme</option>
+				  <option value="Non Applicabile">Non Applicabile</option>
+				</select>
+			  </div>
+
+			  <!-- Textarea a tutto campo -->
+			  <textarea class="input-nota-valore-stanza" 
+						placeholder="Note o osservazioni specifiche per questo requisito..." 
+						rows="2" 
+						style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
+			</div>
         `;
 	
         ambitoBody.appendChild(reqBox);
@@ -2531,19 +2584,34 @@ function rigeneraPianiVuoti() {
 			reqBox.className = 'nodo-requisito';
 			
 			reqBox.innerHTML = `
-			  <div class="requisito-titolo">📄 <strong>${req.requisito}</strong></div>
-			  <div class="requisito-dettagli">
-				${req.caratteristiche ? `<p><strong>Caratteristiche:</strong> ${req.caratteristiche}</p>` : ''}
-				${req.disabilita ? `<p><strong>Disabilità target:</strong> ${req.disabilita}</p>` : ''}
-				${req.note ? `<p class="testo-mute"><em>Note guidera: ${req.note}</em></p>` : ''}
-			  </div>
-			  <div class="requisito-input">
-				<label>
-				  <input type="checkbox" class="chk-requisito" data-indicatore-id="${req.id}">
-				  Presente / Conforme
-				</label>
-				<textarea class="note-requisito" data-indicatore-id="${req.id}" placeholder="Note o osservazioni specifiche per questo requisito..." rows="2"></textarea>
-			  </div>
+				<div class="requisito-titolo">📄 <strong>${req.requisito}</strong></div>     
+
+				<div class="requisito-dettagli">
+				  ${req.caratteristiche ? `<p><strong>Caratteristiche:</strong> ${req.caratteristiche}</p>` : ''}
+				  ${req.disabilita ? `<p><strong>Disabilità target:</strong> ${req.disabilita}</p>` : ''}
+				  ${req.note ? `<p class="testo-mute"><em>Note guida: ${req.note}</em></p>` : ''}
+				</div>
+
+				<!-- Layout a colonna per occupare l'intera larghezza disponibile -->
+				<div class="requisito-input" style="display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 8px;">
+				  
+				  <div style="display: flex; align-items: center; gap: 8px;">
+					<label style="font-weight: 600;">Stato:</label>
+					<select class="input-valore-stanza" data-id-indicatore="${req.id}" style="max-width: 250px; padding: 4px 8px;">
+					  <option value="">-- Seleziona Stato --</option>
+					  <option value="Conforme">Conforme</option>
+					  <option value="Non Conforme">Non Conforme</option>
+					  <option value="Parzialmente Conforme">Parzialmente Conforme</option>
+					  <option value="Non Applicabile">Non Applicabile</option>
+					</select>
+				  </div>
+
+				  <!-- Textarea a tutto campo -->
+				  <textarea class="input-nota-valore-stanza" 
+							placeholder="Note o osservazioni specifiche per questo requisito..." 
+							rows="2" 
+							style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
+				</div>
 			`;
 			ambitoBody.appendChild(reqBox);
 		  });
@@ -2606,19 +2674,34 @@ function rigeneraPianiVuoti() {
 			reqBox.className = 'nodo-requisito';
 			
 			reqBox.innerHTML = `
-			  <div class="requisito-titolo">📄 <strong>${req.requisito}</strong></div>
-			  <div class="requisito-dettagli">
-				${req.caratteristiche ? `<p><strong>Caratteristiche:</strong> ${req.caratteristiche}</p>` : ''}
-				${req.disabilita ? `<p><strong>Disabilità target:</strong> ${req.disabilita}</p>` : ''}
-				${req.note ? `<p class="testo-mute"><em>Note guidera: ${req.note}</em></p>` : ''}
-			  </div>
-			  <div class="requisito-input">
-				<label>
-				  <input type="checkbox" class="chk-requisito" data-indicatore-id="${req.id}">
-				  Presente / Conforme
-				</label>
-				<textarea class="note-requisito" data-indicatore-id="${req.id}" placeholder="Note o osservazioni specifiche per questo requisito..." rows="2"></textarea>
-			  </div>
+				<div class="requisito-titolo">📄 <strong>${req.requisito}</strong></div>   
+
+				<div class="requisito-dettagli">
+				  ${req.caratteristiche ? `<p><strong>Caratteristiche:</strong> ${req.caratteristiche}</p>` : ''}
+				  ${req.disabilita ? `<p><strong>Disabilità target:</strong> ${req.disabilita}</p>` : ''}
+				  ${req.note ? `<p class="testo-mute"><em>Note guida: ${req.note}</em></p>` : ''}
+				</div>
+
+				<!-- Layout a colonna per occupare l'intera larghezza disponibile -->
+				<div class="requisito-input" style="display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 8px;">
+				  
+				  <div style="display: flex; align-items: center; gap: 8px;">
+					<label style="font-weight: 600;">Stato:</label>
+					<select class="input-valore-stanza" data-id-indicatore="${req.id}" style="max-width: 250px; padding: 4px 8px;">
+					  <option value="">-- Seleziona Stato --</option>
+					  <option value="Conforme">Conforme</option>
+					  <option value="Non Conforme">Non Conforme</option>
+					  <option value="Parzialmente Conforme">Parzialmente Conforme</option>
+					  <option value="Non Applicabile">Non Applicabile</option>
+					</select>
+				  </div>
+
+				  <!-- Textarea a tutto campo -->
+				  <textarea class="input-nota-valore-stanza" 
+							placeholder="Note o osservazioni specifiche per questo requisito..." 
+							rows="2" 
+							style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
+				</div>
 			`;
 			ambitoBody.appendChild(reqBox);
 		  });

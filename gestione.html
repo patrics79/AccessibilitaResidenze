@@ -110,32 +110,41 @@
         </div>
       </div>
       
-      <div class="checkbox-group">
-        <div class="form-group" style="max-width: 200px;">
-          <label for="input-num-ospiti">N Ospiti Totali</label>
-          <input type="number" id="input-num-ospiti" min="1" value="1">
-        </div>
-        
-        <div class="form-group" style="max-width: 200px;">
-          <label for="input-num-stanze">N Stanze Totali</label>
-          <input type="number" id="input-num-stanze" min="1" value="1">
-        </div>
-        
-        <div class="form-group" style="max-width: 200px;">
-          <label for="input-num-stanze-disabili">N Stanze Disabili Tot.</label>
-          <input type="number" id="input-num-stanze-disabili" min="0" value="1">
-        </div>
-        
-        <div class="form-group" style="max-width: 200px;">
-          <label for="input-num-spazi-comuni">N Spazi Comuni Tot.</label>
-          <input type="number" id="input-num-spazi-comuni" min="0" value="1">
-        </div>
+	  
+	  
+	  <div class="checkbox-group">
+		  <div class="form-group" style="max-width: 200px;">
+			<label for="input-num-ospiti">N Ospiti Totali</label>
+			<input type="number" id="input-num-ospiti" min="1" value="1">
+		  </div>
+		  
+		  <div class="form-group" style="max-width: 200px;">
+			<label for="input-piani">N Piani Totali</label>
+			<input type="number" id="input-piani" min="1" value="1" oninput="rigeneraPianiVuoti()">
+		  </div>
+		  
+		  <div class="form-group" style="max-width: 200px;">
+			<label for="input-num-stanze">N Stanze Totali</label>
+			<!-- Aggiunto readonly e sfondo disabilitato -->
+			<input type="number" id="input-num-stanze" value="0" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: bold;">
+		  </div>
+		  
+		  <div class="form-group" style="max-width: 200px;">
+			<label for="input-num-stanze-disabili">N Stanze Disabili Tot.</label>
+			<!-- Aggiunto readonly e sfondo disabilitato -->
+			<input type="number" id="input-num-stanze-disabili" value="0" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: bold;">
+		  </div>
+		  
+		  <div class="form-group" style="max-width: 200px;">
+			<label for="input-num-spazi-comuni">N Spazi Comuni Tot.</label>
+			<!-- Aggiunto readonly e sfondo disabilitato -->
+			<input type="number" id="input-num-spazi-comuni" value="0" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight: bold;">
+		  </div>
+		</div>
+	  
+	  
+	  
 
-        <div class="form-group" style="max-width: 200px;">
-          <label for="input-piani">N Piani Totali</label>
-          <input type="number" id="input-piani" min="1" value="1" oninput="rigeneraPianiVuoti()">
-        </div>
-      </div>
 
       <div id="sezione-piani">
         <h2>Dettaglio Singoli Piani</h2>
