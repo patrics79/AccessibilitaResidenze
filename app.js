@@ -223,7 +223,7 @@ console.log(oraFormattata);
 
       const { data: schedaData, error: schedaError } = await clientSupabase
         .from('scheda_residenze')
-        .select('id, id_residenza, last_update, mensa, ascensore, montascale, montapersone, rampa, num_ospiti,num_stanze, num_stanze_disabili, num_spazi_comuni , piani, portineria')
+        .select('id, id_residenza, last_update, mensa, ascensore, montascale, montapersone, rampa, num_ospiti,num_stanze, num_stanze_disabili, num_spazi_comuni, piani, portineria')
         .eq('id_residenza', idResidenza);
 
       if (schedaError) return mostraMessaggio("Errore caricamento scheda: " + schedaError.message, true);
@@ -543,6 +543,7 @@ async function salvaTutto() {
     num_ospiti: num_ospiti,
     num_stanze: num_stanze,
     num_stanze_disabili: num_stanze_disabili,
+	num_spazi_comuni: num_spazi_comuni,
     piani: num_piani 
   };
 
